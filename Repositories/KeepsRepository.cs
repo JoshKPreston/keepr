@@ -42,13 +42,11 @@ namespace keepr.Repositories
 
         public int Create(Keep newKeep)
         {
-            string sql = "select * from profiles where id = @id";
-            newKeep.Creator = _db.QueryFirstOrDefault<Profile>(sql, new { newKeep.CreatorId });
-            sql = @"
+            string sql = @"
                 insert into keeps
-                (creatorId, name, description, img, creator)
+                (creatorId, name, description, img)
                 values
-                (@creatorId, @name, @description, @img, @creator);
+                (@creatorId, @name, @description, @img);
                 select last_insert_id();";
             return _db.ExecuteScalar<int>(sql, newKeep);
         }
