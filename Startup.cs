@@ -66,8 +66,14 @@ namespace keepr
             });
 
             services.AddScoped<IDbConnection>(dbConnection => CreateDbConnection());
-            services.AddTransient<ProfileService>();
-            services.AddTransient<ProfileRepository>();
+            services.AddTransient<ProfilesService>();
+            services.AddTransient<ProfilesRepository>();
+            services.AddTransient<KeepsService>();
+            services.AddTransient<KeepsRepository>();
+            services.AddTransient<VaultsService>();
+            services.AddTransient<VaultsRepository>();
+            services.AddTransient<VaultKeepsService>();
+            services.AddTransient<VaultKeepsRepository>();
 
             // REVIEW Do you want to do something here?
 

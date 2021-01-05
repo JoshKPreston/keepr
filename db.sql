@@ -5,70 +5,58 @@ create table profiles(
   picture varchar(255) not null
 )
 
-create table vaults(
-  id int not null auto_increment primary key,
-  image varchar(255) not null,
-  category varchar(255) not null,
-  title varchar(255) not null,
-  description varchar(1020) not null,
-  price decimal(8,2) not null,
-  rating decimal(3,2) not null,
-  creatorId varchar(255)
-  foreign key(creatorId)
-    references profiles(id)
-    on delete cascade,
-  index idxCategory (category),
-  index idxTitle (title),
-  index idxRating (rating),
-  index idxCreatorId (creatorId)
-)
-
-create table reviews(
-  id int not null auto_increment primary key,
-  rating tinyint(1) not null,
-  text varchar(1020) not null,
-  productId int,
-  creatorId varchar(255),
-  foreign key(productId)
-    references products(id)
-    on delete cascade,
-  foreign key(creatorId)
-    references profiles(id),
-  index idxId (id),
-  index idxCreatorId (creatorId)
-)
-
 create table keeps(
   id int not null auto_increment primary key,
-  title varchar(255) not null unique,
-  creatorId varchar(255),
+  name varchar(255) not null,
+  description varchar(1020) not null,
+  img varchar(255) not null,
+  shares int not null default 0,
+  views int not null default 0,
+  keeps int not null default 0,
+  creatorId varchar(255) not null,
   foreign key(creatorId)
     references profiles(id)
     on delete cascade,
-  index idxCreatorId (creatorId)
+  index idxName (name),
+  index idxDescription (description)
 )
 
--- show indexes from wishlists
--- alter table wishlists add unique index (title)
--- delete from wishlists where title like 'kid%'
--- select * from wishlists
-
+create table vaults(
+  id int not null auto_increment primary key,
+  name varchar(255) not null,
+  description varchar(255) not null,
+  isPrivate boolean not null default 0,
+  creatorId varchar(255) not null,
+  foreign key(creatorId)
+    references profiles(id)
+    on delete cascade,
+  index idxName (name)
+)
 
 create table vaultkeeps(
   id int not null auto_increment primary key,
-  wishlistId int,
-  productId int,
-  creatorId varchar(255),
-  foreign key(wishlistId)
-    references wishlists(id)
+  vaultId int,
+  keepId int,
+  creatorId varchar(255) not null,
+  foreign key(vaultId)
+    references vaults(id)
     on delete cascade,
-  foreign key(productId)
-    references products(id),
+  foreign key(keepId)
+    references keeps(id)
+    on delete cascade,
   foreign key(creatorId)
     references profiles(id)
     on delete cascade,
-  index idxWishlistId (wishlistId),
-  index idxProductId (productId),
+  index idxVaultId (vaultId),
+  index idxKeepId (keepId),
   index idxCreatorId (creatorId)
 )
 
+-- alter table keeps alter shares set default 0;
+-- alter table keeps alter views set default 0;
+-- alter table keeps alter keeps set default 0;
+
+-- select * from keeps
+
+-- show columns from keeps
+-- show columns from vaults

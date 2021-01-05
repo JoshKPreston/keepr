@@ -2,7 +2,7 @@ import { AppState } from '../AppState'
 import { logger } from '../utils/Logger'
 import { api } from './AxiosService'
 
-class ProfileService {
+class ProfilesService {
   async getProfile() {
     try {
       const res = await api.get('/profile')
@@ -13,4 +13,4 @@ class ProfileService {
   }
 }
 
-export const profileService = new ProfileService()
+export const profilesService = new ProfilesService()
