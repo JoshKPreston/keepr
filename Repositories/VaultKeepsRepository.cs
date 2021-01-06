@@ -27,20 +27,27 @@ namespace keepr.Repositories
             return _db.QueryFirstOrDefault<VaultKeep>(sql, new { id = id, creatorId = userInfo.Id });
         }
 
-        public IEnumerable<VaultKeep> GetVaultKeepsByProfile(Profile userInfo)
+        public IEnumerable<VaultKeep> GetVaultKeepsByProfileId(string userId)
         {
-            string sql = @"select * from vaultkeeps where creatorId = @creatorId";
-            return _db.Query<VaultKeep>(sql, new { creatorId = userInfo.Id });
+            string sql = @"select * from vaultkeeps where creatorId = @userId";
+            return _db.Query<VaultKeep>(sql, new { userId });
         }
 
         public IEnumerable<Keep> GetKeepsByVaultId(int vaultId)
         {
             string sql = @"
-            select * from keeps
-            inner join vaultkeeps
-            on vaultkeeps.vaultId = @vaultId";
-            return _db.Query<Keep>(sql, new { vaultId });
+                select vk.id as VaultKeepId, k.*, v.*, p.*
+                from vaultkeeps vk
+                join keeps k on k.id = vk.keepId
+                join vaults v on v.id = vk.vaultId
+                join profiles p on p.id = k.creatorId
+                where vk.vaultId = @vaultId";
+            return _db.Query<VaultKeepViewModel, Profile, VaultKeepViewModel>(sql, (keep, profile) => { 
+                keep.Creator = profile; 
+                return keep; 
+            }, new { vaultId }, splitOn: "id");
         }
+
 
         public int Create(VaultKeep newVaultKeep)
         {

@@ -18,9 +18,9 @@ namespace keepr.Services
     {
       return _keepsRepository.Get();
     }
-    internal IEnumerable<Keep> GetKeepsByProfile(Profile userInfo)
+    public IEnumerable<Keep> GetKeepsByProfileId(string id)
     {
-      return _keepsRepository.GetKeepsByProfile(userInfo);
+      return _keepsRepository.GetKeepsByProfileId(id);
     }
 
     public Keep GetOne(int id)

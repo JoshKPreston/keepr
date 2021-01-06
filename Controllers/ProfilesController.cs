@@ -39,14 +39,25 @@ namespace keepr.Controllers
             }
         }
 
-        [HttpGet("{id}/keeps")]
-        [Authorize]
-        public async Task<ActionResult<Keep>> GetKeepsByProfile(string id)
+        [HttpGet("{id}")]
+        public ActionResult<Profile> GetProfileById(string id)
         {
             try
             {
-                Profile userInfo = await HttpContext.GetUserInfoAsync<Profile>();
-                return Ok(_keepsService.GetKeepsByProfile(userInfo));
+                return Ok(_profilesService.GetProfileById(id));
+            }
+            catch (System.Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("{id}/keeps")]
+        public ActionResult<Keep> GetKeepsByProfileId(string id)
+        {
+            try
+            {
+                return Ok(_keepsService.GetKeepsByProfileId(id));
             }
             catch (System.Exception e)
             {
@@ -55,13 +66,11 @@ namespace keepr.Controllers
         }
 
         [HttpGet("{id}/vaults")]
-        [Authorize]
-        public async Task<ActionResult<Vault>> GetVaultsByProfile(string id)
+        public ActionResult<Vault> GetVaultsByProfileId(string id)
         {
             try
             {
-                Profile userInfo = await HttpContext.GetUserInfoAsync<Profile>();
-                return Ok(_vaultsService.GetVaultsByProfile(userInfo));
+                return Ok(_vaultsService.GetVaultsByProfileId(id));
             }
             catch (System.Exception e)
             {
@@ -71,12 +80,11 @@ namespace keepr.Controllers
 
         [HttpGet("{id}/vaultkeeps")]
         [Authorize]
-        public async Task<ActionResult<VaultKeep>> GetVaultKeepsByProfile(string id)
+        public ActionResult<VaultKeep> GetVaultKeepsByProfileId(string id)
         {
             try
             {
-                Profile userInfo = await HttpContext.GetUserInfoAsync<Profile>();
-                return Ok(_vaultKeepsService.GetVaultKeepsByProfile(userInfo));
+                return Ok(_vaultKeepsService.GetVaultKeepsByProfileId(id));
             }
             catch (System.Exception e)
             {

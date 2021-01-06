@@ -1,39 +1,27 @@
 <template>
   <div class="creator-page container-fluid bg-light">
-    <div class="row flex-nowrap p-3">
-      <div class="col-2">
-        <img class="img-fluid" :src="creator.picture">
+    <div class="row">
+      <div class="col-4">
+        {{ creator.picture }}
       </div>
-      <div class="col-6">
+      <div class="col-8">
         <h1>{{ creator.name }}</h1>
         <h5>Vaults: {{ vaults.length }}</h5>
         <h5>Keeps: {{ keeps.length }}</h5>
       </div>
     </div>
-    <div class="row p-5 align-items-center">
-      <h2 class="p-2">
-        Vaults
-      </h2>
-      <span
-        data-toggle="modal"
-        data-target="#modal_newVaultForm"
-        class="text-primary"
-      >
+    <div class="row justify-content-start align-items-center">
+      <h2>Vaults</h2>
+      <span data-toggle="modal" data-target="'modal_vaultForm" class="text-primary">
         <i class="fa fa-plus fa-2x" aria-hidden="true"></i>
       </span>
     </div>
     <div class="row justify-content-around">
-      <vault-component v-for="v in vaults" :key="v" :vault-prop="v" />
+      <vault-component class="col-3 img-thumbnail" v-for="v in vaults" :key="v" :vault-prop="v" />
     </div>
-    <div class="row p-5 align-items-center">
-      <h2 class="p-2">
-        Keeps
-      </h2>
-      <span
-        data-toggle="modal"
-        data-target="#modal_newKeepForm"
-        class="text-primary"
-      >
+    <div class="row justify-content-start align-items-center">
+      <h2>Keeps</h2>
+      <span data-toggle="modal" data-target="'modal_keepForm" class="text-primary">
         <i class="fa fa-plus fa-2x" aria-hidden="true"></i>
       </span>
     </div>
@@ -46,6 +34,8 @@
 <script>
 import { computed, onMounted } from 'vue'
 import { profilesService } from '../services/ProfilesService'
+import { vaultsService } from '../services/VaultsService'
+import { keepsService } from '../services/KeepsService'
 import { useRoute } from 'vue-router'
 import { AppState } from '../AppState'
 
@@ -54,14 +44,16 @@ export default {
   setup() {
     const route = useRoute()
     onMounted(async() => {
-      await profilesService.GetProfileById(route.params.id)
-      await profilesService.GetVaultsByProfileId(route.params.id)
-      await profilesService.GetKeepsByProfileId(route.params.id)
+      await profilesService.getCreator(route.params.id)
+      await vaultsService.Get()
+      await keepsService.Get()
     })
     return {
       creator: computed(() => AppState.creator),
-      vaults: computed(() => AppState.vaults),
-      keeps: computed(() => AppState.keeps)
+      // keeps: computed(() => AppState.keeps.filter(e => e.creatorId === this.creator.id)),
+      // vaults: computed(() => AppState.vaults.filter(e => e.creatorId === this.creator.id))
+      keeps: computed(() => AppState.keeps),
+      vaults: computed(() => AppState.vaults)
     }
   },
   components: {}

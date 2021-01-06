@@ -18,6 +18,13 @@ namespace keepr.Repositories
             string sql = "select * from profiles where email = @Email";
             return _db.QueryFirstOrDefault<Profile>(sql, new { email });
         }
+
+        public Profile GetProfileById(string id)
+        {
+            string sql = "select * from profiles where id = @id";
+            return _db.QueryFirstOrDefault<Profile>(sql, new { id });
+        }
+        
         public Profile Create(Profile userInfo)
         {
             string sql = @"

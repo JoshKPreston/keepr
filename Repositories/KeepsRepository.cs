@@ -9,7 +9,6 @@ namespace keepr.Repositories
     public class KeepsRepository
     {
         private readonly IDbConnection _db;
-        private readonly ProfilesRepository _profilesRepository;
 
         public KeepsRepository(IDbConnection db)
         {
@@ -34,10 +33,10 @@ namespace keepr.Repositories
             return _db.QueryFirstOrDefault<Keep>(sql, new { id });
         }
 
-        internal IEnumerable<Keep> GetKeepsByProfile(Profile userInfo)
+        internal IEnumerable<Keep> GetKeepsByProfileId(string id)
         {
-            string sql = @"select * from keeps where creatorId = @creatorId";
-            return _db.Query<Keep>(sql, new { creatorId = userInfo.Id });
+            string sql = @"select * from keeps where creatorId = @id";
+            return _db.Query<Keep>(sql, new { id });
         }
 
         public int Create(Keep newKeep)

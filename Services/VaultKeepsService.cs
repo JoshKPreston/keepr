@@ -8,10 +8,12 @@ namespace keepr.Services
     public class VaultKeepsService
     {
         private readonly VaultKeepsRepository _vaultKeepsRepository;
+        private readonly VaultsRepository _vaultsRepository;
 
-        public VaultKeepsService(VaultKeepsRepository vaultKeepsRepository)
+        public VaultKeepsService(VaultKeepsRepository vaultKeepsRepository, VaultsRepository vaultsRepository)
         {
             _vaultKeepsRepository = vaultKeepsRepository;
+            _vaultsRepository = vaultsRepository;
         }
 
         public IEnumerable<VaultKeep> Get()
@@ -24,9 +26,9 @@ namespace keepr.Services
             return _vaultKeepsRepository.GetOne(id, userInfo);
         }
 
-        public IEnumerable<VaultKeep> GetVaultKeepsByProfile(Profile userInfo)
+        public IEnumerable<VaultKeep> GetVaultKeepsByProfileId(string userId)
         {
-            return _vaultKeepsRepository.GetVaultKeepsByProfile(userInfo);
+            return _vaultKeepsRepository.GetVaultKeepsByProfileId(userId);
         }
 
         public IEnumerable<Keep> GetKeepsByVaultId(int vaultId)
@@ -36,6 +38,11 @@ namespace keepr.Services
 
         public VaultKeep Create(VaultKeep newVaultKeep)
         {
+            Vault vault = _vaultsRepository.GetOne(newVaultKeep.VaultId);
+            if (newVaultKeep.CreatorId != vault.CreatorId)
+            {
+                throw new Exception("Invalid <VaultKeep> creator");
+            }
             newVaultKeep.Id = _vaultKeepsRepository.Create(newVaultKeep);
             return newVaultKeep;
         }
@@ -45,11 +52,11 @@ namespace keepr.Services
             VaultKeep original = _vaultKeepsRepository.GetOne(id, userInfo);
             if (original == null)
             {
-            throw new Exception("Cannot find <VaultKeep> with that <Id>");
+                throw new Exception("Cannot find <VaultKeep> with that <Id>");
             }
             if (original.CreatorId != userInfo.Id)
             {
-            throw new Exception("Invalid <VaultKeep> creator");
+                throw new Exception("Invalid <VaultKeep> creator");
             }
             _vaultKeepsRepository.Edit(id, data);
             return _vaultKeepsRepository.GetOne(id, userInfo);

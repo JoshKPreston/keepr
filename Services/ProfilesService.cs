@@ -22,5 +22,10 @@ namespace keepr.Services
             }
             return profile;
         }
+
+        public Profile GetProfileById(string id)
+        {
+            return _profilesRepository.GetProfileById(id);
+        }
   }
 }

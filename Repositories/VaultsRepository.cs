@@ -26,10 +26,10 @@ namespace keepr.Repositories
             return _db.QueryFirstOrDefault<Vault>(sql, new { id });
         }
 
-        internal IEnumerable<Vault> GetVaultsByProfile(Profile userInfo)
+        internal IEnumerable<Vault> GetVaultsByProfileId(string userId)
         {
-            string sql = @"select * from vaults where creatorId = @creatorId";
-            return _db.Query<Vault>(sql, new { creatorId = userInfo.Id });
+            string sql = @"select * from vaults where creatorId = @userId";
+            return _db.Query<Vault>(sql, new { userId });
         }
 
         public int Create(Vault newVault)

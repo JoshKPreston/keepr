@@ -18,9 +18,9 @@ namespace keepr.Services
     {
       return _vaultsRepository.Get();
     }
-    internal IEnumerable<Vault> GetVaultsByProfile(Profile userInfo)
+    internal IEnumerable<Vault> GetVaultsByProfileId(string userId)
     {
-      return _vaultsRepository.GetVaultsByProfile(userInfo);
+      return _vaultsRepository.GetVaultsByProfileId(userId);
     }
 
     public Vault GetOne(int id)

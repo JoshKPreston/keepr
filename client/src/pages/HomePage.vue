@@ -1,25 +1,56 @@
 <template>
-  <div class="home flex-grow-1 d-flex flex-column align-items-center justify-content-center">
-    <img src="https://bcw.blob.core.windows.net/public/img/8600856373152463" alt="CodeWorks Logo">
-    <h1 class="my-5 bg-dark text-light p-3 rounded d-flex align-items-center">
-      <span class="mx-2 text-white">Vue 3 Starter</span>
-    </h1>
+  <div class="home-page container-fluid bg-light">
+    <div class="grid">
+      <keep-component v-for="k in keeps" :key="k" :keep-prop="k" />
+    </div>
   </div>
 </template>
 
 <script>
+import { computed, onMounted } from 'vue'
+import { AppState } from '../AppState'
+import { keepsService } from '../services/KeepsService'
 export default {
-  name: 'Home'
+  name: 'HomePage',
+  setup() {
+    onMounted(async() => {
+      await keepsService.Get()
+    })
+    return {
+      keeps: computed(() => AppState.keeps)
+    }
+  }
 }
 </script>
 
-<style scoped lang="scss">
-.home{
-  text-align: center;
-  user-select: none;
-  > img{
-    height: 200px;
-    width: 200px;
+<style lang="scss" scoped>
+  .grid {
+    margin-top: 2vh;
+    line-height: 40px;
+    column-count: 1;
   }
-}
+
+  @media (min-width: 576px) {
+    .grid {
+      column-count: 2;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .grid {
+      column-count: 3;
+    }
+  }
+
+  @media (min-width: 992px) {
+    .grid {
+      column-count: 4;
+    }
+  }
+
+  @media (min-width: 1200px) {
+    .grid {
+      column-count: 5;
+    }
+  }
 </style>
