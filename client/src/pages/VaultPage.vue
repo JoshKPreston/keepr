@@ -1,29 +1,23 @@
 <template>
-  <div class="creator-page container-fluid bg-light">
-    <div class="row">
-      <div class="col-4">
-        {{ creator.picture }}
+  <div class="vault-page container-fluid bg-light">
+    <div class="row p-5">
+      <div class="col">
+        <div class="row">
+          <h1>
+            {{ vault.name }}
+          </h1>
+          <div
+            v-if="profile.id == vault.creatorId"
+            @click="Delete"
+            class="col-1 d-flex justify-content-center align-items-center btn-delete"
+          >
+            <i class="fa fa-trash-o fa-2x" aria-hidden="true"></i>
+          </div>
+        </div>
+        <div class="row">
+          <h5>Keeps: {{ keeps.length }}</h5>
+        </div>
       </div>
-      <div class="col-8">
-        <h1>{{ creator.name }}</h1>
-        <h5>Vaults: {{ vaults.length }}</h5>
-        <h5>Keeps: {{ keeps.length }}</h5>
-      </div>
-    </div>
-    <div class="row justify-content-start align-items-center">
-      <h2>Vaults</h2>
-      <span data-toggle="modal" data-target="'modal_vaultForm" class="text-primary">
-        <i class="fa fa-plus fa-2x" aria-hidden="true"></i>
-      </span>
-    </div>
-    <div class="row justify-content-around">
-      <vault-component class="col-3 img-thumbnail" v-for="v in vaults" :key="v" :vault-prop="v" />
-    </div>
-    <div class="row justify-content-start align-items-center">
-      <h2>Keeps</h2>
-      <span data-toggle="modal" data-target="'modal_keepForm" class="text-primary">
-        <i class="fa fa-plus fa-2x" aria-hidden="true"></i>
-      </span>
     </div>
     <div class="grid">
       <keep-component v-for="k in keeps" :key="k" :keep-prop="k" />
@@ -33,30 +27,33 @@
 
 <script>
 import { computed, onMounted } from 'vue'
-import { profilesService } from '../services/ProfilesService'
 import { vaultsService } from '../services/VaultsService'
-import { keepsService } from '../services/KeepsService'
 import { useRoute } from 'vue-router'
 import { AppState } from '../AppState'
+import { closeModal } from '../utils/ModalMod'
+import { profilesService } from '../services/ProfilesService'
 
 export default {
-  name: 'ProfilePage',
+  name: 'VaultPage',
   setup() {
     const route = useRoute()
     onMounted(async() => {
-      await profilesService.getCreator(route.params.id)
-      await vaultsService.Get()
-      await keepsService.Get()
+      try {
+        profilesService.getProfile()
+        closeModal()
+      } catch {}
+      await vaultsService.GetOne(route.params.id)
+      await vaultsService.GetKeepsByVaultId(route.params.id)
     })
     return {
-      creator: computed(() => AppState.creator),
-      // keeps: computed(() => AppState.keeps.filter(e => e.creatorId === this.creator.id)),
-      // vaults: computed(() => AppState.vaults.filter(e => e.creatorId === this.creator.id))
-      keeps: computed(() => AppState.keeps),
-      vaults: computed(() => AppState.vaults)
+      profile: computed(() => AppState.profile),
+      vault: computed(() => AppState.activeVault),
+      keeps: computed(() => AppState.vaultKeeps),
+      Delete() {
+        vaultsService.Delete(this.vault.id)
+      }
     }
-  },
-  components: {}
+  }
 }
 </script>
 

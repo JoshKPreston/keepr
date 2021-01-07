@@ -2,31 +2,31 @@
   <div class="keep-modal">
     <div
       :id="'modal_keep_' + keep.id"
-      class="modal bd-example-modal-lg"
+      class="modal"
       tabindex="-1"
       role="dialog"
-      aria-labelledby="myLargeModalLabel"
+      aria-labelledby="keepModalLabel"
       aria-hidden="true"
     >
       <div class="modal-dialog modal-lg">
         <div class="modal-content container p-0 bg-light">
           <div class="row p-2">
-            <div class="col-6 align-self-center">
+            <div class="col-5 align-self-center">
               <img class="img-fluid rounded d-block m-auto" :src="keep.img" :alt="keep.name">
             </div>
-            <div class="col-6 pt-3 d-flex flex-column justify-content-between">
+            <div class="col-7 p-3 d-flex flex-column justify-content-between">
               <div class="row justify-content-center align-items-center">
                 <div class="col-2 d-flex align-items-center justify-content-center">
                   <i class="fa fa-eye text-primary pr-2" aria-hidden="true"></i>
                   <span>{{ keep.views }}</span>
                 </div>
                 <div class="col-2 d-flex align-items-center justify-content-center">
-                  <i class="fa fa-eye text-primary pr-2" aria-hidden="true"></i>
+                  <img class="pr-2" height="18" src="../assets/img/icon.png" alt="">
                   <span>{{ keep.keeps }}</span>
                 </div>
                 <div class="col-2 d-flex align-items-center justify-content-center">
-                  <i class="fa fa-share text-primary pr-2" aria-hidden="true"></i>
-                  <span>124</span>
+                  <i class="fa fa-share-alt text-primary pr-2"></i>
+                  <span>{{ keep.shares }}</span>
                 </div>
                 <button
                   data-dismiss="modal"
@@ -43,39 +43,53 @@
               </div>
               <div class="row justify-content-center p-2">
                 <!-- <p>{{ keep.description }}</p> -->
-                <div class="keep-desc">
+                <div class="keep-desc p-2">
                   <p>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Quibusdam totam ab, quia voluptatum labore alias itaque unde velit ad cupiditate consectetur voluptatem harum quis maiores numquam id fugiat facilis repellat.
+                    <!-- Lorem ipsum dolor sit amet consectetur adipisicing elit. Quibusdam totam ab, quia voluptatum labore alias itaque unde velit ad cupiditate consectetur voluptatem harum quis maiores numquam id fugiat facilis repellat. -->
                   </p>
                 </div>
               </div>
               <div class="row d-flex justify-content-between align-items-center">
-                <div class="col-4">
-                  <div class="dropdown open">
+                <div class="col-4 m-auto">
+                  <div
+                    v-if="user.isAuthenticated"
+                    class="dropdown open"
+                  >
                     <button class="btn btn-sm btn-primary dropdown-toggle text-uppercase"
                             type="button"
-                            id="triggerId"
+                            id="modal_dropdown_add_keep_to_vault"
                             data-toggle="dropdown"
                             aria-haspopup="true"
                             aria-expanded="false"
                     >
                       Add to Vault
                     </button>
-                    <div class="dropdown-menu" aria-labelledby="triggerId">
-                      <a class="dropdown-item" href="#">Action</a>
-                      <a class="dropdown-item disabled" href="#">Disabled action</a>
+                    <div
+                      class="dropdown-menu"
+                      aria-labelledby="modal_dropdown_add_keep_to_vault"
+                    >
+                      <a
+                        v-for="v in vaults"
+                        :key="v"
+                        class="dropdown-item"
+                        href="#"
+                      >{{ v.name }}</a>
                     </div>
                   </div>
                 </div>
-                <div class="col-2 justify-content-center" @click="Delete" id="btn-delete">
+                <div
+                  v-if="keep.creatorId == profile.id"
+                  @click="Delete"
+                  class="col-4 pl-5 d-flex justify-content-center align-items-center btn-delete m-auto"
+                >
                   <i class="fa fa-trash-o fa-2x" aria-hidden="true"></i>
                 </div>
-                <div class="col-2 justify-content-center">
+                <div class="col-4 d-flex m-auto">
                   <img
-                    :src="creator.picture"
-                    alt="user photo"
+                    :src="keep.creator.picture"
                     height="40"
-                    class="rounded"
+                    @click="pushPage('ProfilePage', keep.creatorId)"
+                    class="btn-creator text-light rounded m-auto"
                   />
                 </div>
               </div>
@@ -88,9 +102,13 @@
 </template>
 
 <script>
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { AppState } from '../AppState'
 import { keepsService } from '../services/KeepsService'
+import router from '../router'
+import { useRoute } from 'vue-router'
+// import { profilesService } from '../services/ProfilesService'
+import { closeModal } from '../utils/ModalMod'
 export default {
   name: 'KeepModal',
   props: {
@@ -102,11 +120,24 @@ export default {
     }
   },
   setup(props) {
+    onMounted(async() => {
+      // await profilesService.GetVaultsByProfileId(this.profile.id)
+    })
+    const route = useRoute()
     return {
+      route,
       keep: computed(() => props.keepProp),
-      creator: computed(() => AppState.creator),
+      user: computed(() => AppState.user),
+      profile: computed(() => AppState.profile),
+      vaults: computed(() => AppState.vaults),
       async Delete() {
+        AppState.keeps = AppState.keeps.filter(e => e.id !== this.keep.id)
         await keepsService.Delete(this.keep.id)
+        closeModal()
+      },
+      pushPage(pageName, id) {
+        router.push({ name: pageName, params: { id: id } })
+        closeModal()
       }
     }
   }
@@ -127,8 +158,5 @@ export default {
     position: absolute;
     right: 1.5vw;
     top: 0;
-  }
-  .modal-content {
-    width: 80vw;
   }
 </style>

@@ -34,7 +34,7 @@ namespace keepr.Controllers
         }
 
         [HttpGet("{id}")]
-        public ActionResult<IEnumerable<Keep>> GetOne(int id)
+        public ActionResult<Keep> GetOne(int id)
         {
             try
             {

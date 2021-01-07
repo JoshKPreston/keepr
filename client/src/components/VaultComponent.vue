@@ -1,13 +1,28 @@
 <template>
-  <div class="vault-component col-3">
-    <div @click="pushPage('ProfilePage', vault.creatorId)" class="card">
+  <div
+    class="vault-component"
+  >
+    <!-- <img v-for="k in vaultKeeps" :key="k" :src="k.img" /> -->
+    <span
+      v-if="profile.id == vault.creatorId"
+      @click="Delete"
+      class="btn-delete text-danger"
+    >
+      &times;
+    </span>
+    <h4
+      class="vault-name text-dark"
+      @click="pushPage('VaultPage', vault.id)"
+    >
       {{ vault.name }}
-    </div>
+    </h4>
   </div>
 </template>
 
 <script>
 import { computed } from 'vue'
+import { AppState } from '../AppState'
+import router from '../router'
 import { vaultsService } from '../services/VaultsService'
 export default {
   name: 'VaultComponent',
@@ -15,22 +30,38 @@ export default {
     vaultProp: {
       type: Object,
       default: () => {
-        alert('Vault property does not exist')
+        alert('Vault property does not exist (vault-component)')
       }
     }
   },
   setup(props) {
     return {
       vault: computed(() => props.vaultProp),
-      Delete() {
+      keeps: computed(() => AppState.vaultKeeps),
+      profile: computed(() => AppState.profile),
+      pushPage(pageName, id) {
+        router.push({ name: pageName, params: { id: id } })
+      },
+      async Delete() {
+        AppState.vaults = AppState.vaults.filter(e => e.id !== this.vault.id)
         vaultsService.Delete(this.vault.id)
       }
     }
-  },
-  components: {}
+  }
 }
 </script>
 
 <style lang="scss" scoped>
-
+  .vault-component {
+    height: 15vh;
+    cursor: pointer;
+    margin-top: 2vh;
+    position:relative;
+  }
+  .vault-name {
+    position: absolute;
+    bottom: 1vh;
+    left: 2vw;
+    font-size: 2em;
+  }
 </style>

@@ -1,5 +1,12 @@
 <template>
   <div class="keep-component">
+    <span
+      v-if="profile.id == keep.creatorId"
+      @click="Delete"
+      class="btn-delete text-danger"
+    >
+      &times;
+    </span>
     <img
       @click="addKeepView"
       data-toggle="modal"
@@ -26,6 +33,8 @@ import { computed } from 'vue'
 import { keepsService } from '../services/KeepsService'
 import router from '../router'
 import { AppState } from '../AppState'
+import { closeModal } from '../utils/ModalMod'
+import { useRoute } from 'vue-router'
 export default {
   name: 'KeepComponent',
   props: {
@@ -37,22 +46,27 @@ export default {
     }
   },
   setup(props) {
+    const route = useRoute()
     return {
+      route,
       keep: computed(() => props.keepProp),
+      user: computed(() => AppState.user),
+      profile: computed(() => AppState.profile),
       async Delete() {
-        document.querySelector('.modal-backdrop').remove()
+        AppState.keeps = AppState.keeps.filter(e => e.id !== this.keep.id)
         keepsService.Delete(this.keep.id)
+        try { closeModal() } catch {}
       },
-      pushPage(pageName, creatorId) {
-        router.push({ name: pageName, params: { id: creatorId } })
+      pushPage(pageName, id) {
+        router.push({ name: pageName, params: { id: id } })
+        try { closeModal() } catch {}
       },
       async addKeepView() {
         await keepsService.GetOne(props.keepProp.id)
         this.keep.views = AppState.activeKeep.views
       }
     }
-  },
-  components: {}
+  }
 }
 </script>
 
@@ -79,5 +93,11 @@ export default {
     width: 100% !important;
     height: auto !important;
     border-radius: 1.5vh;
+  }
+  .btn-delete {
+    position: absolute;
+    top: 0;
+    right: 1vw;
+    font-size: 2em;
   }
 </style>

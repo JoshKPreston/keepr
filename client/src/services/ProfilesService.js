@@ -12,7 +12,7 @@ class ProfilesService {
     }
   }
 
-  async GetProfileById(id) {
+  async GetCreatorProfileById(id) {
     try {
       const res = await api.get('api/profiles/' + id)
       logger.log(res.data)

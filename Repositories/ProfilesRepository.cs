@@ -19,7 +19,7 @@ namespace keepr.Repositories
             return _db.QueryFirstOrDefault<Profile>(sql, new { email });
         }
 
-        public Profile GetProfileById(string id)
+        public Profile GetCreatorProfileById(string id)
         {
             string sql = "select * from profiles where id = @id";
             return _db.QueryFirstOrDefault<Profile>(sql, new { id });

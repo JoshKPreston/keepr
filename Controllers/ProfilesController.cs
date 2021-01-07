@@ -40,11 +40,11 @@ namespace keepr.Controllers
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Profile> GetProfileById(string id)
+        public ActionResult<Profile> GetCreatorProfileById(string id)
         {
             try
             {
-                return Ok(_profilesService.GetProfileById(id));
+                return Ok(_profilesService.GetCreatorProfileById(id));
             }
             catch (System.Exception e)
             {

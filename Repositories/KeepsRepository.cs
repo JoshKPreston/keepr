@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using Dapper;
 using keepr.Models;
 
@@ -17,8 +18,15 @@ namespace keepr.Repositories
 
         public IEnumerable<Keep> Get()
         {
-            string sql = "select * from keeps";
-            return _db.Query<Keep>(sql);
+            string sql = @"
+                select k.*, p.*
+                from keeps k
+                join profiles p on p.id = k.creatorId";
+            return _db.Query<Keep, Profile, Keep>(sql, (keep, profile) => {
+                    keep.Creator = profile;
+                    return keep;
+                }
+            );
         }
 
         public Keep GetOne(int id)
@@ -29,14 +37,35 @@ namespace keepr.Repositories
             where id = @id"; 
             _db.Execute(sql, new { id });
 
-            sql = "select * from keeps where id = @id";
-            return _db.QueryFirstOrDefault<Keep>(sql, new { id });
+            sql = @"
+            select k.*, p.*
+            from keeps k
+            join profiles p on p.id = k.creatorId
+            where k.id = @id";
+            IEnumerable<Keep> keeps = _db.Query<Keep, Profile, Keep>(
+                sql,
+                (keep, profile) => {
+                    keep.Creator = profile;
+                    return keep;
+                },
+                new { id }
+            );
+            Keep keep = keeps.FirstOrDefault<Keep>();
+            return keep;
         }
 
-        internal IEnumerable<Keep> GetKeepsByProfileId(string id)
+        public IEnumerable<Keep> GetKeepsByProfileId(string id)
         {
-            string sql = @"select * from keeps where creatorId = @id";
-            return _db.Query<Keep>(sql, new { id });
+            string sql = @"
+            select k.*, p.*
+            from keeps k
+            join profiles p on p.id = k.creatorId
+            where k.creatorId = @id";
+            // return _db.Query<Keep>(sql, new { id });
+            return _db.Query<Keep, Profile, Keep>(sql, (keep, profile) => { 
+                keep.Creator = profile; 
+                return keep; 
+            }, new { id });
         }
 
         public int Create(Keep newKeep)

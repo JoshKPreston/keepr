@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using Dapper;
 using keepr.Models;
 
@@ -16,20 +17,44 @@ namespace keepr.Repositories
 
         public IEnumerable<Vault> Get()
         {
-            string sql = "select * from vaults where isPrivate = false";
-            return _db.Query<Vault>(sql);
+            string sql = @"
+                select v.*, p.* 
+                from vaults v 
+                join profiles p on p.id = v.creatorId
+                where isPrivate = false";
+            return _db.Query<Vault, Profile, Vault>(sql, (vault, profile) => {
+                vault.Creator = profile;
+                return vault;
+            });
         }
 
         public Vault GetOne(int id)
         {
-            string sql = "select * from vaults where id = @id";
-            return _db.QueryFirstOrDefault<Vault>(sql, new { id });
+            string sql = @"
+                select v.*, p.*
+                from vaults v
+                join profiles p on p.id = v.creatorId
+                where v.id = @id";
+            IEnumerable<Vault> vaults = _db.Query<Vault, Profile, Vault>(
+                sql,
+                (vault, profile) => {
+                    vault.Creator = profile;
+                    return vault;
+                },
+                new { id } 
+            );
+            Vault vault = vaults.FirstOrDefault<Vault>();
+            return vault;
         }
 
-        internal IEnumerable<Vault> GetVaultsByProfileId(string userId)
+        public IEnumerable<Vault> GetVaultsByProfileId(string id)
         {
-            string sql = @"select * from vaults where creatorId = @userId";
-            return _db.Query<Vault>(sql, new { userId });
+            string sql = @"
+                select v.*, p.*
+                from vaults v
+                join profiles p on p.id = v.creatorId
+                where p.id = @id";
+            return _db.Query<Vault>(sql, new { id });
         }
 
         public int Create(Vault newVault)

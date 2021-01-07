@@ -10,11 +10,15 @@
 import { computed, onMounted } from 'vue'
 import { AppState } from '../AppState'
 import { keepsService } from '../services/KeepsService'
+import { closeModal } from '../utils/ModalMod'
 export default {
   name: 'HomePage',
   setup() {
     onMounted(async() => {
       await keepsService.Get()
+      try {
+        closeModal()
+      } catch {}
     })
     return {
       keeps: computed(() => AppState.keeps)

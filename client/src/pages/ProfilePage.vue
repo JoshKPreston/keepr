@@ -1,8 +1,8 @@
 <template>
-  <div class="creator-page container-fluid bg-light">
+  <div class="profile-page container-fluid bg-light">
     <div class="row flex-nowrap p-3">
       <div class="col-2">
-        <img class="img-fluid" :src="creator.picture">
+        <img class="img-fluid rounded" :src="creator.picture">
       </div>
       <div class="col-6">
         <h1>{{ creator.name }}</h1>
@@ -10,28 +10,29 @@
         <h5>Keeps: {{ keeps.length }}</h5>
       </div>
     </div>
-    <div class="row p-5 align-items-center">
-      <h2 class="p-2">
+    <div class="row p-3 my-5 align-items-center">
+      <h2 class="p-3">
         Vaults
       </h2>
       <span
         data-toggle="modal"
-        data-target="#modal_newVaultForm"
+        data-target="#modal_NewVaultForm"
         class="text-primary"
       >
         <i class="fa fa-plus fa-2x" aria-hidden="true"></i>
       </span>
+      <!-- <NewVaultFormModal /> -->
     </div>
-    <div class="row justify-content-around">
-      <vault-component v-for="v in vaults" :key="v" :vault-prop="v" />
+    <div class="grid">
+      <vault-component v-for="v in vaults" :key="v" :vault-prop="v" :vault-keeps-prop="vaultKeeps" />
     </div>
-    <div class="row p-5 align-items-center">
-      <h2 class="p-2">
+    <div class="row p-3 my-5 align-items-center">
+      <h2 class="p-3">
         Keeps
       </h2>
       <span
         data-toggle="modal"
-        data-target="#modal_newKeepForm"
+        data-target="#modal_NewKeepForm"
         class="text-primary"
       >
         <i class="fa fa-plus fa-2x" aria-hidden="true"></i>
@@ -48,23 +49,28 @@ import { computed, onMounted } from 'vue'
 import { profilesService } from '../services/ProfilesService'
 import { useRoute } from 'vue-router'
 import { AppState } from '../AppState'
+import { closeModal } from '../utils/ModalMod'
 
 export default {
   name: 'ProfilePage',
   setup() {
     const route = useRoute()
     onMounted(async() => {
-      await profilesService.GetProfileById(route.params.id)
+      try {
+        closeModal()
+      } catch {}
+      await profilesService.GetCreatorProfileById(route.params.id)
       await profilesService.GetVaultsByProfileId(route.params.id)
       await profilesService.GetKeepsByProfileId(route.params.id)
     })
     return {
       creator: computed(() => AppState.creator),
       vaults: computed(() => AppState.vaults),
+      publicVaults: computed(() => AppState.vaults.filter(e => e.isPrivate === false)),
+      privateVaults: computed(() => AppState.vaults.filter(e => e.isPrivate === true)),
       keeps: computed(() => AppState.keeps)
     }
-  },
-  components: {}
+  }
 }
 </script>
 

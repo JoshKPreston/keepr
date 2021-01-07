@@ -23,9 +23,9 @@ namespace keepr.Services
             return profile;
         }
 
-        public Profile GetProfileById(string id)
+        public Profile GetCreatorProfileById(string id)
         {
-            return _profilesRepository.GetProfileById(id);
+            return _profilesRepository.GetCreatorProfileById(id);
         }
   }
 }

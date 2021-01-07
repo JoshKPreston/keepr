@@ -46,7 +46,9 @@ class KeepsService {
   async Delete(id) {
     try {
       await api.delete('api/keeps/' + id)
-      AppState.keeps = AppState.keeps.filter(e => e.id !== id)
+      if (AppState.keeps.find(e => e.id === id)) {
+        AppState.keeps = AppState.keeps.filter(e => e.id !== id)
+      }
     } catch (error) {
       logger.error(error)
     }

@@ -1,5 +1,5 @@
 <template>
-  <div class="new-keep-form-component">
+  <div class="new-keep-form-modal">
     <div class="row justify-content-center align-items-center py-5">
       <div class="col-4">
         <form @submit.prevent="createKeep">
