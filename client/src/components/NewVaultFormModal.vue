@@ -8,90 +8,61 @@
       aria-labelledby="vaultFormModalLabel"
       aria-hidden="true"
     >
-      <div class="modal-dialog modal-lg">
+      <div class="modal-dialog modal-lg border border-primary rounded">
         <div class="modal-content container p-0 bg-light">
-          <div class="row justify-content-center align-items-center py-5">
-            <div class="col-4">
-              <form @submit.prevent="createVault">
-                <div class="form-group">
-                  <input
-                    v-model="state.newVault.name"
-                    type="text"
-                    class="form-control"
-                    name="Name"
-                    id=""
-                    aria-describedby="helpId"
-                    placeholder="Name"
-                  >
-                  <!-- <small id="helpId" class="form-text text-muted">Enter a name</small> -->
-                </div>
-                <div class="form-group">
-                  <input
-                    v-model="state.newVault.description"
-                    type="text"
-                    class="form-control"
-                    name="Description"
-                    id=""
-                    aria-describedby="helpId"
-                    placeholder="Description"
-                  >
-                  <!-- <small id="helpId" class="form-text text-muted">Help text</small> -->
-                </div>
-                <div class="form-group">
-                  <div class="form-check">
-                    <input type="checkbox" id="checkbox" v-model="state.newVault.isPrivate">
-                    Private Vault?
-                  </div>
-                  <button type="submit" class="btn btn-secondary">
-                    New Vault
-                  </button>
-                </div>
-              </form>
-            </div>
-            <div class="col-4">
-            </div>
-            <form @submit.prevent="createVault">
-              <div class="form-group">
-                <input
-                  v-model="state.newKeep.name"
-                  type="text"
-                  class="form-control"
-                  name="Name"
-                  id=""
-                  aria-describedby="helpId"
-                  placeholder="Name"
-                >
-                <!-- <small id="helpId" class="form-text text-muted">Enter a name</small> -->
-              </div>
-              <div class="form-group">
-                <input
-                  v-model="state.newKeep.description"
-                  type="text"
-                  class="form-control"
-                  name="Description"
-                  id=""
-                  aria-describedby="helpId"
-                  placeholder="Description"
-                >
-                <!-- <small id="helpId" class="form-text text-muted">Help text</small> -->
-              </div>
-              <div class="form-group">
-                <input
-                  v-model="state.newKeep.img"
-                  type="text"
-                  class="form-control"
-                  name="Img"
-                  id=""
-                  aria-describedby="helpId"
-                  placeholder="ImgUrl"
-                >
-                <!-- <small id="helpId" class="form-text text-muted">Help text</small> -->
-              </div>
-              <button @click="createKeep" class="btn btn-secondary">
-                New Keep
+          <div class="row">
+            <div class="col-12 d-flex justify-content-between">
+              <h1 class="p-3">
+                New Vault
+              </h1>
+              <button
+                data-dismiss="modal"
+                data-target="modal_NewVaultForm"
+                class="btn btn-sm btn-outline-danger btn-close-modal m-3"
+              >
+                &times;
               </button>
-            </form>
+            </div>
           </div>
+          <form class="p-3" @submit.prevent="createVault">
+            <div class="form-group">
+              <label for="name">Title</label>
+              <input
+                v-model="state.newVault.name"
+                type="text"
+                class="form-control"
+                name="name"
+                placeholder="Title..."
+              >
+            </div>
+            <div class="form-group">
+              <label for="description">Description</label>
+              <textarea
+                v-model="state.newVault.description"
+                class="w-100"
+                name="description"
+                cols="30"
+                rows="10"
+                placeholder="Keep Description..."
+              ></textarea>
+            </div>
+            <div class="form-group">
+              <div class="form-check">
+                <label for="chbx_isPrivate">Private?</label>
+                <input
+                  v-model="state.newVault.isPrivate"
+                  name="chbx_isPrivate"
+                  type="checkbox"
+                  id="checkbox"
+                  class="ml-2 align-self-center"
+                >
+                <small id="helpId" class="form-text text-muted">Private vaults can only be seen by you</small>
+              </div>
+            </div>
+            <button type="submit" class="float-right btn btn-primary">
+              Create
+            </button>
+          </form>
         </div>
       </div>
     </div>
@@ -101,6 +72,7 @@
 <script>
 import { reactive } from 'vue'
 import { vaultsService } from '../services/VaultsService'
+import { closeModal } from '../utils/ModalMod'
 export default {
   name: 'NewVaultFormModal',
   setup() {
@@ -108,13 +80,14 @@ export default {
       newVault: {
         name: '',
         description: '',
-        isPrivate: null
+        isPrivate: false
       }
     })
     return {
       state,
       createVault() {
         vaultsService.Create(state.newVault)
+        try { closeModal() } catch {}
         state.newVault = {}
       }
     }
@@ -124,5 +97,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
+  .new-vault-form-modal {
+    position: relative;
+  }
+  .btn-close-modal {
+    position: absolute;
+    right: 1.5vw;
+    top: 0;
+  }
 </style>

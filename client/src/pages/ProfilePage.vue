@@ -6,37 +6,46 @@
       </div>
       <div class="col-6">
         <h1>{{ creator.name }}</h1>
-        <h5>Vaults: {{ vaults.length }}</h5>
+        <h5>Vaults: {{ publicVaults.length }}</h5>
         <h5>Keeps: {{ keeps.length }}</h5>
       </div>
     </div>
-    <div class="row p-3 my-5 align-items-center">
+    <div class="row p-3 mt-5 align-items-center">
       <h2 class="p-3">
         Vaults
       </h2>
       <span
+        v-if="profile.id === route.params.id"
         data-toggle="modal"
         data-target="#modal_NewVaultForm"
-        class="text-primary"
+        class="text-primary btn-modal"
       >
         <i class="fa fa-plus fa-2x" aria-hidden="true"></i>
       </span>
-      <!-- <NewVaultFormModal /> -->
+      <new-vault-form-modal />
     </div>
-    <div class="grid">
-      <vault-component v-for="v in vaults" :key="v" :vault-prop="v" :vault-keeps-prop="vaultKeeps" />
+    <!-- <div class="row p-3 justify-content-start">
+      <vault-component v-for="v in vaults" :key="v" :vault-prop="v"  />
+    </div> -->
+    <div class="row p-3 justify-content-start">
+      <vault-component v-for="v in publicVaults" :key="v" :vault-prop="v" />
+    </div>
+    <div v-if="profile.id === route.params.id" class="row p-3 justify-content-start">
+      <vault-component v-for="v in privateVaults" :key="v" :vault-prop="v" />
     </div>
     <div class="row p-3 my-5 align-items-center">
       <h2 class="p-3">
         Keeps
       </h2>
       <span
+        v-if="profile.id === route.params.id"
         data-toggle="modal"
         data-target="#modal_NewKeepForm"
-        class="text-primary"
+        class="text-primary btn-modal"
       >
         <i class="fa fa-plus fa-2x" aria-hidden="true"></i>
       </span>
+      <new-keep-form-modal />
     </div>
     <div class="grid">
       <keep-component v-for="k in keeps" :key="k" :keep-prop="k" />
@@ -56,19 +65,22 @@ export default {
   setup() {
     const route = useRoute()
     onMounted(async() => {
-      try {
-        closeModal()
-      } catch {}
+      try { closeModal() } catch {}
       await profilesService.GetCreatorProfileById(route.params.id)
       await profilesService.GetVaultsByProfileId(route.params.id)
       await profilesService.GetKeepsByProfileId(route.params.id)
+      // if (!AppState.user.isAuthenticated && !AppState.profile.id) {
+      //   await profilesService.getProfile()
+      // }
     })
     return {
+      route,
       creator: computed(() => AppState.creator),
       vaults: computed(() => AppState.vaults),
       publicVaults: computed(() => AppState.vaults.filter(e => e.isPrivate === false)),
       privateVaults: computed(() => AppState.vaults.filter(e => e.isPrivate === true)),
-      keeps: computed(() => AppState.keeps)
+      keeps: computed(() => AppState.keeps),
+      profile: computed(() => AppState.profile)
     }
   }
 }
@@ -79,6 +91,10 @@ export default {
     margin-top: 2vh;
     line-height: 40px;
     column-count: 1;
+  }
+
+  .btn-modal {
+    cursor: pointer;
   }
 
   @media (min-width: 576px) {

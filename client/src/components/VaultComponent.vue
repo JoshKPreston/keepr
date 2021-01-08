@@ -1,18 +1,27 @@
 <template>
   <div
-    class="vault-component"
+    class="vault-component float-left p-3 my-4"
   >
-    <!-- <img v-for="k in vaultKeeps" :key="k" :src="k.img" /> -->
+    <img
+      @click="pushPage('VaultPage', vault.id)"
+      class="rounded"
+      height="150"
+      width="150"
+      :src="vaultImages[Math.floor(Math.random() * vaultImages.length)]"
+    />
     <span
       v-if="profile.id == vault.creatorId"
       @click="Delete"
-      class="btn-delete text-danger"
+      class="btn-delete btn btn-outline-danger btn-sm"
     >
       &times;
     </span>
+    <div v-if="vault.isPrivate" class="private-vault">
+      <i class="fa fa-lock" aria-hidden="true"></i>
+    </div>
     <h4
-      class="vault-name text-dark"
       @click="pushPage('VaultPage', vault.id)"
+      class="vault-name text-light"
     >
       {{ vault.name }}
     </h4>
@@ -37,6 +46,7 @@ export default {
   setup(props) {
     return {
       vault: computed(() => props.vaultProp),
+      vaultImages: computed(() => AppState.vaultImages),
       keeps: computed(() => AppState.vaultKeeps),
       profile: computed(() => AppState.profile),
       pushPage(pageName, id) {
@@ -60,8 +70,26 @@ export default {
   }
   .vault-name {
     position: absolute;
-    bottom: 1vh;
-    left: 2vw;
-    font-size: 2em;
+    bottom: 0vh;
+    left: 2.5vw;
+    z-index: 1;
+  }
+  .btn-delete {
+    position: absolute;
+    top: 2.5vh;
+    right: 2vw;
+  }
+  .private-vault {
+    background: rgba(0,0,0,0.5);
+    height: 150px;
+    width: 150px;
+    position: absolute;
+    top: 16px;
+    left: 16px;
+  }
+  .fa-lock {
+    color: #fff;
+    position: relative;
+    padding: 1vh;
   }
 </style>

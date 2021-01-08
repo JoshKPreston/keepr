@@ -8,7 +8,7 @@
           </h1>
           <div
             v-if="profile.id == vault.creatorId"
-            @click="Delete"
+            @click="Delete(vault.id)"
             class="col-1 d-flex justify-content-center align-items-center btn-delete"
           >
             <i class="fa fa-trash-o fa-2x" aria-hidden="true"></i>
@@ -31,17 +31,18 @@ import { vaultsService } from '../services/VaultsService'
 import { useRoute } from 'vue-router'
 import { AppState } from '../AppState'
 import { closeModal } from '../utils/ModalMod'
-import { profilesService } from '../services/ProfilesService'
+import router from '../router'
+// import { profilesService } from '../services/ProfilesService'
 
 export default {
   name: 'VaultPage',
   setup() {
     const route = useRoute()
     onMounted(async() => {
-      try {
-        profilesService.getProfile()
-        closeModal()
-      } catch {}
+      try { closeModal() } catch {}
+      // if (!AppState.user.isAuthenticated && !AppState.profile.id) {
+      //   await profilesService.getProfile()
+      // }
       await vaultsService.GetOne(route.params.id)
       await vaultsService.GetKeepsByVaultId(route.params.id)
     })
@@ -49,8 +50,11 @@ export default {
       profile: computed(() => AppState.profile),
       vault: computed(() => AppState.activeVault),
       keeps: computed(() => AppState.vaultKeeps),
-      Delete() {
-        vaultsService.Delete(this.vault.id)
+      async Delete(vaultId) {
+        AppState.vaults = AppState.vaults.filter(e => e.id !== this.vault.id)
+        AppState.activeVault = {}
+        vaultsService.Delete(vaultId)
+        router.push({ name: 'ProfilePage', params: { id: this.profile.id } })
       }
     }
   }
@@ -58,6 +62,13 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  .btn-delete {
+    cursor: pointer;
+    color: var(--info);
+  }
+  .btn-delete:hover {
+    color: var(--danger);
+  }
   .grid {
     margin-top: 2vh;
     line-height: 40px;

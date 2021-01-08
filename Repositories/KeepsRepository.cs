@@ -60,7 +60,7 @@ namespace keepr.Repositories
             select k.*, p.*
             from keeps k
             join profiles p on p.id = k.creatorId
-            where k.creatorId = @id";
+            where p.id = @id";
             // return _db.Query<Keep>(sql, new { id });
             return _db.Query<Keep, Profile, Keep>(sql, (keep, profile) => { 
                 keep.Creator = profile; 

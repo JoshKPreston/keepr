@@ -26,9 +26,9 @@ namespace keepr.Services
             return _vaultKeepsRepository.GetOne(id, userInfo);
         }
 
-        public IEnumerable<VaultKeep> GetVaultKeepsByProfileId(string userId)
+        public IEnumerable<VaultKeep> GetVaultKeepsByProfileId(string id)
         {
-            return _vaultKeepsRepository.GetVaultKeepsByProfileId(userId);
+            return _vaultKeepsRepository.GetVaultKeepsByProfileId(id);
         }
 
         public IEnumerable<Keep> GetKeepsByVaultId(int vaultId)

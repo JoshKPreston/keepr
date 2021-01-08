@@ -50,41 +50,43 @@
                 </div>
               </div>
               <div class="row d-flex justify-content-between align-items-center">
-                <div class="col-4 m-auto">
+                <div class="col-5 m-auto">
                   <div
                     v-if="user.isAuthenticated"
                     class="dropdown open"
                   >
-                    <button class="btn btn-sm btn-primary dropdown-toggle text-uppercase"
-                            type="button"
-                            id="modal_dropdown_add_keep_to_vault"
-                            data-toggle="dropdown"
-                            aria-haspopup="true"
-                            aria-expanded="false"
+                    <button
+                      @click="GetVaultsByProfileId(profile.id)"
+                      class="btn btn-sm btn-primary dropdown-toggle text-uppercase"
+                      type="button"
+                      id="modal_addToVault"
+                      data-toggle="dropdown"
+                      aria-haspopup="true"
+                      aria-expanded="false"
                     >
                       Add to Vault
                     </button>
                     <div
                       class="dropdown-menu"
-                      aria-labelledby="modal_dropdown_add_keep_to_vault"
+                      aria-labelledby="modal_addToVault"
                     >
                       <a
                         v-for="v in vaults"
                         :key="v"
                         class="dropdown-item"
-                        href="#"
+                        @click="addToVault(keep.id, v.id)"
                       >{{ v.name }}</a>
                     </div>
                   </div>
                 </div>
-                <div
-                  v-if="keep.creatorId == profile.id"
-                  @click="Delete"
-                  class="col-4 pl-5 d-flex justify-content-center align-items-center btn-delete m-auto"
-                >
-                  <i class="fa fa-trash-o fa-2x" aria-hidden="true"></i>
-                </div>
                 <div class="col-4 d-flex m-auto">
+                  <div
+                    v-if="keep.creatorId == profile.id"
+                    @click="Delete"
+                    class="col-1 d-flex justify-content-center align-items-center btn-delete m-auto"
+                  >
+                    <i class="fa fa-trash-o fa-2x" aria-hidden="true"></i>
+                  </div>
                   <img
                     :src="keep.creator.picture"
                     height="40"
@@ -102,13 +104,15 @@
 </template>
 
 <script>
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, reactive } from 'vue'
 import { AppState } from '../AppState'
 import { keepsService } from '../services/KeepsService'
+import { vaultKeepsService } from '../services/VaultKeepsService'
 import router from '../router'
 import { useRoute } from 'vue-router'
 // import { profilesService } from '../services/ProfilesService'
 import { closeModal } from '../utils/ModalMod'
+import { profilesService } from '../services/ProfilesService'
 export default {
   name: 'KeepModal',
   props: {
@@ -124,8 +128,15 @@ export default {
       // await profilesService.GetVaultsByProfileId(this.profile.id)
     })
     const route = useRoute()
+    const state = reactive({
+      newVaultKeep: {
+        keepId: null,
+        vaultId: null
+      }
+    })
     return {
       route,
+      state,
       keep: computed(() => props.keepProp),
       user: computed(() => AppState.user),
       profile: computed(() => AppState.profile),
@@ -133,11 +144,23 @@ export default {
       async Delete() {
         AppState.keeps = AppState.keeps.filter(e => e.id !== this.keep.id)
         await keepsService.Delete(this.keep.id)
-        closeModal()
+        try { closeModal() } catch {}
       },
       pushPage(pageName, id) {
         router.push({ name: pageName, params: { id: id } })
-        closeModal()
+        try { closeModal() } catch {}
+      },
+      async addToVault(keepId, vaultId) {
+        state.newVaultKeep.keepId = keepId
+        state.newVaultKeep.vaultId = vaultId
+        vaultKeepsService.Create(state.newVaultKeep)
+        try { closeModal() } catch {}
+        this.pushPage('VaultPage', state.newVaultKeep.vaultId)
+      },
+      GetVaultsByProfileId(id) {
+        if (AppState.vaults.length < 1) {
+          profilesService.GetVaultsByProfileId(id)
+        }
       }
     }
   }

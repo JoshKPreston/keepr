@@ -27,10 +27,10 @@ namespace keepr.Repositories
             return _db.QueryFirstOrDefault<VaultKeep>(sql, new { id = id, creatorId = userInfo.Id });
         }
 
-        public IEnumerable<VaultKeep> GetVaultKeepsByProfileId(string userId)
+        public IEnumerable<VaultKeep> GetVaultKeepsByProfileId(string id)
         {
-            string sql = @"select * from vaultkeeps where creatorId = @userId";
-            return _db.Query<VaultKeep>(sql, new { userId });
+            string sql = @"select * from vaultkeeps where creatorId = @id";
+            return _db.Query<VaultKeep>(sql, new { id });
         }
 
         public IEnumerable<Keep> GetKeepsByVaultId(int vaultId)
@@ -57,7 +57,16 @@ namespace keepr.Repositories
                 values
                 (@creatorId, @vaultId, @keepId);
                 select last_insert_id();";
-            return _db.ExecuteScalar<int>(sql, newVaultKeep);
+            int lastInsertId = _db.ExecuteScalar<int>(sql, newVaultKeep);
+
+            int keepId = newVaultKeep.KeepId;
+            sql = @"
+            update keeps k 
+            set k.keeps = k.keeps + 1 
+            where id = @keepId"; 
+            _db.Execute(sql, new { keepId });
+
+            return lastInsertId;
         }
 
         internal void Edit(int id, VaultKeep data)
@@ -75,6 +84,12 @@ namespace keepr.Repositories
         internal void Delete(int id)
         {
             string sql = "delete from vaultkeeps where id = @id";
+            _db.Execute(sql, new { id });
+            
+            sql = @"
+            update keeps k 
+            set k.keeps = k.keeps - 1 
+            where id = @id"; 
             _db.Execute(sql, new { id });
         }
     }

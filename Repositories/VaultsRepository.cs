@@ -54,7 +54,10 @@ namespace keepr.Repositories
                 from vaults v
                 join profiles p on p.id = v.creatorId
                 where p.id = @id";
-            return _db.Query<Vault>(sql, new { id });
+            return _db.Query<Vault, Profile, Vault>(sql, (vault, profile) => { 
+                vault.Creator = profile; 
+                return vault; 
+            }, new { id });
         }
 
         public int Create(Vault newVault)

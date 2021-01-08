@@ -16,9 +16,7 @@ export default {
   setup() {
     onMounted(async() => {
       await keepsService.Get()
-      try {
-        closeModal()
-      } catch {}
+      try { closeModal() } catch {}
     })
     return {
       keeps: computed(() => AppState.keeps)
