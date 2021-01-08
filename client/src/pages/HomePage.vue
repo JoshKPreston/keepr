@@ -10,13 +10,17 @@
 import { computed, onMounted } from 'vue'
 import { AppState } from '../AppState'
 import { keepsService } from '../services/KeepsService'
-import { closeModal } from '../utils/ModalMod'
+import $ from 'jquery'
 export default {
   name: 'HomePage',
   setup() {
     onMounted(async() => {
+      try {
+        $('.modal').modal('hide')
+        document.querySelector('.modal-backdrop').remove()
+        document.querySelector('.modal-open').classList.remove('show')
+      } catch {}
       await keepsService.Get()
-      try { closeModal() } catch {}
     })
     return {
       keeps: computed(() => AppState.keeps)
@@ -28,7 +32,6 @@ export default {
 <style lang="scss" scoped>
   .grid {
     margin-top: 2vh;
-    line-height: 40px;
     column-count: 1;
   }
 

@@ -2,6 +2,8 @@
 node_modules
 /dist
 .vscode
+route.json
+vaultKeep_Vault.json
 
 # local env files
 .env.local

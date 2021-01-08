@@ -1,9 +1,16 @@
 <template>
   <div class="keep-component">
     <span
-      v-if="profile.id == keep.creatorId"
+      v-if="profile.id == keep.creatorId && (route.name != 'HomePage' && route.name != 'VaultPage')"
       @click="Delete"
-      class="btn-delete text-danger"
+      class="btn-delete btn btn-outline-danger btn-sm"
+    >
+      &times;
+    </span>
+    <span
+      v-if="profile.id == keep.creatorId && route.name == 'VaultPage'"
+      @click="removeFromVault(keep.vaultKeepId, keep.id)"
+      class="btn-delete btn btn-outline-warning btn-sm"
     >
       &times;
     </span>
@@ -33,8 +40,10 @@ import { computed } from 'vue'
 import { keepsService } from '../services/KeepsService'
 import router from '../router'
 import { AppState } from '../AppState'
-import { closeModal } from '../utils/ModalMod'
 import { useRoute } from 'vue-router'
+import Swal from 'sweetalert2'
+import $ from 'jquery'
+import { vaultKeepsService } from '../services/VaultKeepsService'
 export default {
   name: 'KeepComponent',
   props: {
@@ -52,14 +61,40 @@ export default {
       keep: computed(() => props.keepProp),
       user: computed(() => AppState.user),
       profile: computed(() => AppState.profile),
+      vaultKeeps: computed(() => AppState.vaultKeeps.filter(e => e.vaultId === route.params.id)),
       async Delete() {
-        AppState.keeps = AppState.keeps.filter(e => e.id !== this.keep.id)
-        keepsService.Delete(this.keep.id)
-        try { closeModal() } catch {}
+        await Swal.fire({
+          text: 'Are you sure you want to delete this Keep?',
+          icon: 'warning',
+          confirmButtonText: 'Delete',
+          showCancelButton: true,
+          cancelButtonText: 'Cancel'
+        }).then(isConfirm => {
+          if (isConfirm.value) {
+            AppState.keeps = AppState.keeps.filter(e => e.id !== this.keep.id)
+            keepsService.Delete(this.keep.id)
+            $('#modal_keep_' + this.keep.id).modal('hide')
+          }
+        })
+      },
+      async removeFromVault(vkId, keepId) {
+        await Swal.fire({
+          text: 'Are you sure you want to remove this Keep from the Vault?',
+          icon: 'warning',
+          confirmButtonText: 'Remove',
+          showCancelButton: true,
+          cancelButtonText: 'Cancel'
+        }).then(isConfirm => {
+          if (isConfirm.value) {
+            this.keep.keeps--
+            AppState.keeps = AppState.keeps.filter(e => e.id !== keepId)
+            vaultKeepsService.Delete(vkId)
+          }
+        })
       },
       pushPage(pageName, id) {
         router.push({ name: pageName, params: { id: id } })
-        try { closeModal() } catch {}
+        $('#modal_keep_' + this.keep.id).modal('hide')
       },
       async addKeepView() {
         await keepsService.GetOne(props.keepProp.id)
@@ -75,6 +110,7 @@ export default {
     cursor: pointer;
     margin-top: 2vh;
     position:relative;
+    border-radius: 1.5vh;
   }
   .keep-name {
     position: absolute;
@@ -96,8 +132,8 @@ export default {
   }
   .btn-delete {
     position: absolute;
-    top: 0;
-    right: 1vw;
-    font-size: 2em;
+    top: .75vh;
+    right: .5vw;
+    z-index: 1;
   }
 </style>

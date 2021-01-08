@@ -27,10 +27,23 @@
     <!-- <div class="row p-3 justify-content-start">
       <vault-component v-for="v in vaults" :key="v" :vault-prop="v"  />
     </div> -->
-    <div class="row p-3 justify-content-start">
+    <div class="row ml-4 py-3">
+      <h5>
+        Public Vaults
+      </h5>
+    </div>
+    <div class="row ml-1 p-3 justify-content-start">
       <vault-component v-for="v in publicVaults" :key="v" :vault-prop="v" />
     </div>
-    <div v-if="profile.id === route.params.id" class="row p-3 justify-content-start">
+    <div
+      v-if="profile.id === route.params.id"
+      class="row ml-4 py-3"
+    >
+      <h5>
+        Private Vaults
+      </h5>
+    </div>
+    <div v-if="profile.id === route.params.id" class="row ml-1 p-3 justify-content-start">
       <vault-component v-for="v in privateVaults" :key="v" :vault-prop="v" />
     </div>
     <div class="row p-3 my-5 align-items-center">
@@ -58,14 +71,12 @@ import { computed, onMounted } from 'vue'
 import { profilesService } from '../services/ProfilesService'
 import { useRoute } from 'vue-router'
 import { AppState } from '../AppState'
-import { closeModal } from '../utils/ModalMod'
 
 export default {
   name: 'ProfilePage',
   setup() {
     const route = useRoute()
     onMounted(async() => {
-      try { closeModal() } catch {}
       await profilesService.GetCreatorProfileById(route.params.id)
       await profilesService.GetVaultsByProfileId(route.params.id)
       await profilesService.GetKeepsByProfileId(route.params.id)

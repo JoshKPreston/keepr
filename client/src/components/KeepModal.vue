@@ -88,10 +88,12 @@
                     <i class="fa fa-trash-o fa-2x" aria-hidden="true"></i>
                   </div>
                   <img
+                    v-if="keep"
                     :src="keep.creator.picture"
                     height="40"
                     @click="pushPage('ProfilePage', keep.creatorId)"
                     class="btn-creator text-light rounded m-auto"
+                    :alt="keep.creator.name"
                   />
                 </div>
               </div>
@@ -110,9 +112,9 @@ import { keepsService } from '../services/KeepsService'
 import { vaultKeepsService } from '../services/VaultKeepsService'
 import router from '../router'
 import { useRoute } from 'vue-router'
-// import { profilesService } from '../services/ProfilesService'
-import { closeModal } from '../utils/ModalMod'
 import { profilesService } from '../services/ProfilesService'
+import Swal from 'sweetalert2'
+import $ from 'jquery'
 export default {
   name: 'KeepModal',
   props: {
@@ -138,24 +140,36 @@ export default {
       route,
       state,
       keep: computed(() => props.keepProp),
+      // keep: computed(() => AppState.activeKeep),
       user: computed(() => AppState.user),
       profile: computed(() => AppState.profile),
       vaults: computed(() => AppState.vaults),
       async Delete() {
-        AppState.keeps = AppState.keeps.filter(e => e.id !== this.keep.id)
-        await keepsService.Delete(this.keep.id)
-        try { closeModal() } catch {}
+        await Swal.fire({
+          text: 'Are you sure you want to delete this Keep?',
+          icon: 'warning',
+          confirmButtonText: 'Delete',
+          showCancelButton: true,
+          cancelButtonText: 'Cancel'
+        }).then(isConfirm => {
+          if (isConfirm.value) {
+            AppState.keeps = AppState.keeps.filter(e => e.id !== this.keep.id)
+            keepsService.Delete(this.keep.id)
+            $('#modal_keep_' + this.keep.id).modal('hide')
+          }
+        })
       },
       pushPage(pageName, id) {
         router.push({ name: pageName, params: { id: id } })
-        try { closeModal() } catch {}
+        $('#modal_keep_' + this.keep.id).modal('hide')
       },
       async addToVault(keepId, vaultId) {
+        $('#modal_keep_' + this.keep.id).modal('hide')
         state.newVaultKeep.keepId = keepId
         state.newVaultKeep.vaultId = vaultId
-        vaultKeepsService.Create(state.newVaultKeep)
-        try { closeModal() } catch {}
-        this.pushPage('VaultPage', state.newVaultKeep.vaultId)
+        await vaultKeepsService.Create(state.newVaultKeep)
+        this.keep.keeps = AppState.activeKeep.keeps
+        // this.pushPage('VaultPage', state.newVaultKeep.vaultId)
       },
       GetVaultsByProfileId(id) {
         if (AppState.vaults.length < 1) {

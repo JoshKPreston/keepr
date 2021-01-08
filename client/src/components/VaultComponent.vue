@@ -1,14 +1,7 @@
 <template>
   <div
-    class="vault-component float-left p-3 my-4"
+    class="vault-component float-left rounded shadow"
   >
-    <img
-      @click="pushPage('VaultPage', vault.id)"
-      class="rounded"
-      height="150"
-      width="150"
-      :src="vaultImages[Math.floor(Math.random() * vaultImages.length)]"
-    />
     <span
       v-if="profile.id == vault.creatorId"
       @click="Delete"
@@ -16,7 +9,14 @@
     >
       &times;
     </span>
-    <div v-if="vault.isPrivate" class="private-vault">
+    <img
+      @click="pushPage('VaultPage', vault.id)"
+      class="vault-image rounded"
+      height="200"
+      width="200"
+      :src="vaultImages[Math.floor(Math.random() * vaultImages.length)]"
+    />
+    <div v-if="vault.isPrivate" class="private-vault rounded">
       <i class="fa fa-lock" aria-hidden="true"></i>
     </div>
     <h4
@@ -33,6 +33,7 @@ import { computed } from 'vue'
 import { AppState } from '../AppState'
 import router from '../router'
 import { vaultsService } from '../services/VaultsService'
+import Swal from 'sweetalert2'
 export default {
   name: 'VaultComponent',
   props: {
@@ -53,8 +54,18 @@ export default {
         router.push({ name: pageName, params: { id: id } })
       },
       async Delete() {
-        AppState.vaults = AppState.vaults.filter(e => e.id !== this.vault.id)
-        vaultsService.Delete(this.vault.id)
+        await Swal.fire({
+          text: 'Are you sure you want to delete this Vault?',
+          icon: 'warning',
+          confirmButtonText: 'Delete',
+          showCancelButton: true,
+          cancelButtonText: 'Cancel'
+        }).then(isConfirm => {
+          if (isConfirm.value) {
+            AppState.vaults = AppState.vaults.filter(e => e.id !== this.vault.id)
+            vaultsService.Delete(this.vault.id)
+          }
+        })
       }
     }
   }
@@ -63,10 +74,15 @@ export default {
 
 <style lang="scss" scoped>
   .vault-component {
-    height: 15vh;
     cursor: pointer;
-    margin-top: 2vh;
     position:relative;
+    margin: 1vh;
+  }
+  .vault-image {
+    position: relative;
+  }
+  .vault-image:hover {
+    z-index: 1;
   }
   .vault-name {
     position: absolute;
@@ -76,16 +92,20 @@ export default {
   }
   .btn-delete {
     position: absolute;
-    top: 2.5vh;
-    right: 2vw;
+    top: .75vh;
+    right: .5vw;
+    z-index: 2;
   }
   .private-vault {
     background: rgba(0,0,0,0.5);
-    height: 150px;
-    width: 150px;
+    height: 200px;
+    width: 200px;
     position: absolute;
-    top: 16px;
-    left: 16px;
+    top: 0px;
+    left: 0px;
+  }
+  .private-vault:hover {
+    z-index: -1;
   }
   .fa-lock {
     color: #fff;

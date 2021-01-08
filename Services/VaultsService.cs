@@ -23,12 +23,15 @@ namespace keepr.Services
       return _vaultsRepository.GetVaultsByProfileId(id);
     }
 
-    public Vault GetOne(int id)
+    public Vault GetOne(int id, Profile userInfo)
     {
       Vault vault = _vaultsRepository.GetOne(id);
       if (vault.IsPrivate)
       {
-          throw new Exception("Vault is private");
+          if (vault.CreatorId != userInfo.Id)
+          {
+            throw new Exception("Vault is private");
+          }
       }
       return vault;
     }

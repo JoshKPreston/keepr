@@ -31,9 +31,9 @@ namespace keepr.Services
             return _vaultKeepsRepository.GetVaultKeepsByProfileId(id);
         }
 
-        public IEnumerable<Keep> GetKeepsByVaultId(int vaultId)
+        public IEnumerable<Keep> GetKeepsByVaultId(int id)
         {
-            return _vaultKeepsRepository.GetKeepsByVaultId(vaultId);
+            return _vaultKeepsRepository.GetKeepsByVaultId(id);
         }
 
         public VaultKeep Create(VaultKeep newVaultKeep)

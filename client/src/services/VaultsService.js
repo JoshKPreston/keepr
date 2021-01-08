@@ -16,6 +16,7 @@ class VaultsService {
     try {
       const res = await api.get('api/vaults/' + id)
       AppState.activeVault = res.data
+      logger.log(res.data)
     } catch (error) {
       logger.error(error)
     }
@@ -24,7 +25,8 @@ class VaultsService {
   async GetKeepsByVaultId(id) {
     try {
       const res = await api.get('api/vaults/' + id + '/keeps')
-      AppState.vaultKeeps = res.data
+      AppState.keeps = res.data
+      logger.log(res.data)
     } catch (error) {
       logger.error(error)
     }

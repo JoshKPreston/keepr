@@ -30,8 +30,9 @@ import { computed, onMounted } from 'vue'
 import { vaultsService } from '../services/VaultsService'
 import { useRoute } from 'vue-router'
 import { AppState } from '../AppState'
-import { closeModal } from '../utils/ModalMod'
 import router from '../router'
+import Swal from 'sweetalert2'
+import { vaultKeepsService } from '../services/VaultKeepsService'
 // import { profilesService } from '../services/ProfilesService'
 
 export default {
@@ -39,22 +40,31 @@ export default {
   setup() {
     const route = useRoute()
     onMounted(async() => {
-      try { closeModal() } catch {}
-      // if (!AppState.user.isAuthenticated && !AppState.profile.id) {
-      //   await profilesService.getProfile()
-      // }
       await vaultsService.GetOne(route.params.id)
       await vaultsService.GetKeepsByVaultId(route.params.id)
+      await vaultKeepsService.Get()
     })
     return {
+      route,
       profile: computed(() => AppState.profile),
       vault: computed(() => AppState.activeVault),
-      keeps: computed(() => AppState.vaultKeeps),
+      keeps: computed(() => AppState.keeps),
+      vaultKeeps: computed(() => AppState.vaultKeeps),
       async Delete(vaultId) {
-        AppState.vaults = AppState.vaults.filter(e => e.id !== this.vault.id)
-        AppState.activeVault = {}
-        vaultsService.Delete(vaultId)
-        router.push({ name: 'ProfilePage', params: { id: this.profile.id } })
+        await Swal.fire({
+          text: 'Are you sure you want to delete this Vault?',
+          icon: 'warning',
+          confirmButtonText: 'Delete',
+          showCancelButton: true,
+          cancelButtonText: 'Cancel'
+        }).then(isConfirm => {
+          if (isConfirm.value) {
+            AppState.vaults = AppState.vaults.filter(e => e.id !== this.vault.id)
+            AppState.activeVault = {}
+            vaultsService.Delete(vaultId)
+            router.push({ name: 'ProfilePage', params: { id: this.profile.id } })
+          }
+        })
       }
     }
   }

@@ -36,11 +36,12 @@ namespace keepr.Controllers
         }
 
         [HttpGet("{id}")]
-        public  ActionResult<IEnumerable<Vault>> GetOne(int id)
+        public async Task<ActionResult<IEnumerable<Vault>>> GetOne(int id)
         {
             try
             {
-                return Ok(_vaultsService.GetOne(id));
+                Profile userInfo = await HttpContext.GetUserInfoAsync<Profile>();
+                return Ok(_vaultsService.GetOne(id, userInfo));
             }
             catch (System.Exception e)
             {
@@ -48,12 +49,12 @@ namespace keepr.Controllers
             }
         }
 
-        [HttpGet("{vaultId}/keeps")]
-        public ActionResult<IEnumerable<Keep>> GetKeepsByVaultId(int vaultId)
+        [HttpGet("{id}/keeps")]
+        public ActionResult<IEnumerable<Keep>> GetKeepsByVaultId(int id)
         {
             try
             {
-                return Ok(_vaultKeepsService.GetKeepsByVaultId(vaultId));
+                return Ok(_vaultKeepsService.GetKeepsByVaultId(id));
             }
             catch (System.Exception e)
             {

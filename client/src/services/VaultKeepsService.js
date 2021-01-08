@@ -7,6 +7,7 @@ class VaultKeepsService {
     try {
       const res = await api.get('api/vaultkeeps')
       AppState.vaultKeeps = res.data
+      logger.log(res.data)
     } catch (error) {
       logger.error(error)
     }
@@ -16,6 +17,7 @@ class VaultKeepsService {
     try {
       const res = await api.post('api/vaultkeeps', newVaultKeep)
       AppState.vaultKeeps = [...AppState.vaultKeeps, res.data]
+      AppState.activeKeep.keeps++
     } catch (error) {
       logger.error(error)
     }

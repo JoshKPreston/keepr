@@ -72,7 +72,7 @@
 <script>
 import { reactive } from 'vue'
 import { vaultsService } from '../services/VaultsService'
-import { closeModal } from '../utils/ModalMod'
+import $ from 'jquery'
 export default {
   name: 'NewVaultFormModal',
   setup() {
@@ -87,12 +87,11 @@ export default {
       state,
       createVault() {
         vaultsService.Create(state.newVault)
-        try { closeModal() } catch {}
+        $('#modal_NewVaultForm').modal('hide')
         state.newVault = {}
       }
     }
-  },
-  components: {}
+  }
 }
 </script>
 

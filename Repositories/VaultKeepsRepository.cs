@@ -33,19 +33,33 @@ namespace keepr.Repositories
             return _db.Query<VaultKeep>(sql, new { id });
         }
 
-        public IEnumerable<Keep> GetKeepsByVaultId(int vaultId)
+        // public IEnumerable<Keep> GetKeepsByVaultId(int id)
+        // {
+        //     string sql = @"
+        //         select vk.id as VaultKeepId, k.*, v.*, p.*
+        //         from vaultkeeps vk
+        //         join keeps k on k.id = vk.keepId
+        //         join vaults v on v.id = vk.vaultId
+        //         join profiles p on p.id = k.creatorId
+        //         where vk.vaultId = @id";
+        //     return _db.Query<VaultKeepViewModel, Profile, VaultKeepViewModel>(sql, (keep, profile) => { 
+        //         keep.Creator = profile; 
+        //         return keep; 
+        //     }, new { id }, splitOn: "id");
+        // }
+
+        public IEnumerable<Keep> GetKeepsByVaultId(int id)
         {
             string sql = @"
-                select vk.id as VaultKeepId, k.*, v.*, p.*
+                select vk.id as VaultKeepId, k.*, p.*
                 from vaultkeeps vk
                 join keeps k on k.id = vk.keepId
-                join vaults v on v.id = vk.vaultId
                 join profiles p on p.id = k.creatorId
-                where vk.vaultId = @vaultId";
+                where vk.vaultId = @id";
             return _db.Query<VaultKeepViewModel, Profile, VaultKeepViewModel>(sql, (keep, profile) => { 
                 keep.Creator = profile; 
                 return keep; 
-            }, new { vaultId }, splitOn: "id");
+            }, new { id }, splitOn: "id");
         }
 
 
@@ -83,14 +97,20 @@ namespace keepr.Repositories
 
         internal void Delete(int id)
         {
-            string sql = "delete from vaultkeeps where id = @id";
+            string sql = @"
+                select * from vaultkeeps where id = @id";
+            VaultKeep vaultKeep = _db.QueryFirstOrDefault<VaultKeep>(sql, new { id });
+
+            int keepId = vaultKeep.KeepId;
+            sql = @"
+                update keeps k 
+                set k.keeps = k.keeps - 1 
+                where id = @keepId"; 
+            _db.Execute(sql, new { keepId });
+
+            sql = "delete from vaultkeeps where id = @id";
             _db.Execute(sql, new { id });
             
-            sql = @"
-            update keeps k 
-            set k.keeps = k.keeps - 1 
-            where id = @id"; 
-            _db.Execute(sql, new { id });
         }
     }
 }

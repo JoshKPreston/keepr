@@ -43,7 +43,7 @@
                     v-model="state.newKeep.img"
                     type="text"
                     class="form-control"
-                    name="name"
+                    name="image"
                     placeholder="URL..."
                   >
                 </div>
@@ -84,9 +84,9 @@
 <script>
 import { reactive } from 'vue'
 import { keepsService } from '../services/KeepsService'
-import { closeModal } from '../utils/ModalMod'
 import { profilesService } from '../services/ProfilesService'
 import { useRoute } from 'vue-router'
+import $ from 'jquery'
 export default {
   name: 'NewKeepFormModal',
   setup() {
@@ -103,8 +103,8 @@ export default {
       async createKeep() {
         await keepsService.Create(state.newKeep)
         state.newKeep = {}
-        try { closeModal() } catch {}
-        profilesService.GetKeepsByProfileId(route.params.id)
+        $('#modal_NewKeepForm').modal('hide')
+        await profilesService.GetKeepsByProfileId(route.params.id)
       }
     }
   }

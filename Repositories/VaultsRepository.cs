@@ -86,7 +86,13 @@ namespace keepr.Repositories
 
         internal void Delete(int id)
         {
-            string sql = "delete from vaults where id = @id";
+            string sql = @"
+            update keeps k 
+            set k.keeps = k.keeps - 1 
+            where id = @id"; 
+            _db.Execute(sql, new { id });
+
+            sql = "delete from vaults where id = @id";
             _db.Execute(sql, new { id });
         }
     }
