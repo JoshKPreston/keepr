@@ -28,7 +28,7 @@ namespace keepr.Services
       Vault vault = _vaultsRepository.GetOne(id);
       if (vault.IsPrivate)
       {
-          if (vault.CreatorId != userInfo.Id)
+          if (userInfo != null && vault.CreatorId != userInfo.Id)
           {
             throw new Exception("Vault is private");
           }
